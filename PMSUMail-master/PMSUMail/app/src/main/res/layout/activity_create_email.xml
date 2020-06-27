@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CreateEmailActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/send_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:hint="send to"
+            android:layout_below="@+id/textView"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="17dp"
+            android:completionThreshold="1"
+            android:ems="10"
+            android:maxLines="1"
+            android:text="">
+            <requestFocus />
+        </AutoCompleteTextView>
+
+        <EditText
+            android:id="@+id/subject"
+            android:layout_width="wrap_content"
+            android:inputType="textEmailSubject"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="17dp"
+            android:hint="@string/subject_email_hint"
+            android:ems="10"
+            android:maxLines="1" />
+
+        <AutoCompleteTextView
+            android:id="@+id/cc_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:hint="@string/cc_hint"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="17dp"
+            android:completionThreshold="1"
+            android:ems="10"
+            android:maxLines="1"
+            android:text="">
+            <requestFocus />
+        </AutoCompleteTextView>
+
+        <AutoCompleteTextView
+            android:id="@+id/bcc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:hint="Bcc"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="17dp"
+            android:completionThreshold="1"
+            android:ems="10"
+            android:maxLines="1"
+            android:text="">
+            <requestFocus />
+        </AutoCompleteTextView>
+
+
+        <EditText
+            android:id="@+id/content_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="36dp"
+            android:layout_marginTop="17dp"
+            android:ems="10"
+            android:hint="@string/content_email_hint" />
+
+
+    </LinearLayout>
+</RelativeLayout>
