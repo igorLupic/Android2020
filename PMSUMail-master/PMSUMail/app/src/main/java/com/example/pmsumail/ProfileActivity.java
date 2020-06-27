@@ -31,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewSmtp;
     private TextView textViewPop3;
     private AccountService accountService;
+    private SharedPreferences sharedPreferences;
 
 
 
@@ -88,6 +89,11 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), "Log out" , Toast.LENGTH_SHORT ).show();
                 startActivity(i);
                 return true;
+            case R.id.action_back:
+                Intent back = new Intent(this, EmailsActivity.class);
+                startActivity(back);
+                return true;
+
         }
 
         return super.onOptionsItemSelected(item);

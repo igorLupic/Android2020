@@ -46,9 +46,9 @@ public class CreateEmailActivity extends AppCompatActivity {
     private static Tag tagBody = new Tag();
     private static Message messageBody;
 
-    public static final String[] CONTACTS = new String[]{"igor@gmail.com", "admin@gmail.com", "ivan@gmail.com"};
-    public static final String[] CCC = new String[]{"cc", "cc1", "cc2"};
-    public static final String[] BCC= new String[]{"bcc", "bcc1", "bcc2"};
+    public static final String[] CONTACTS = new String[]{"igor@gmail.com", "admin@gmail.com"};
+    public static final String[] CCC = new String[]{"cc", "cc1"};
+    public static final String[] BCC= new String[]{"bcc", "bcc1"};
 
     private AutoCompleteTextView to;
     private EditText subject;
@@ -140,14 +140,13 @@ public class CreateEmailActivity extends AppCompatActivity {
 
 
 
-         /*       if(bcc.getText().toString() == null || bcc.getText().toString().length() == 0  ||  cc.getText().toString() == null || cc.getText().toString().length() == 0
-                || content.getText().toString() == null || content.getText().toString().length() == 0  || subject.getText().toString() == null || subject.getText().toString().length() == 0
+                if(bcc.getText().toString() == null || bcc.getText().toString().length() == 0  ||  cc.getText().toString() == null || cc.getText().toString().length() == 0
                 || to.getText().toString() == null || to.getText().toString().length() == 0) {
 
                     Toast.makeText(CreateEmailActivity.this, "Fields can not be empty", Toast.LENGTH_LONG).show();
                     return;
                 }else
-                    */
+
                     if(!isValidEmailId(to.getText().toString().trim())){
                     Toast.makeText(CreateEmailActivity.this, "'To' must be valid (example@example.example)", Toast.LENGTH_LONG).show();
                     return;
@@ -183,124 +182,17 @@ public class CreateEmailActivity extends AppCompatActivity {
             }
         });
 
-    }
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.sending_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.action_send:
-
-                AccountService service = ServiceUtils.retrofit.create(AccountService.class);
-                Call<List<Account>> callCon = service.getAccounts();
-
-                callCon.enqueue(new Callback<List<Account>>() {
-                    @Override
-                    public void onResponse(Call<List<Account>> call, Response<List<Account>> response) {
-                        final List<Account> allContacts = response.body();
-
-                        EditText subjectTB = findViewById(R.id.subject);
-                        EditText ccTB = findViewById(R.id.cc);
-                        EditText toTB = findViewById(R.id.to);
-                        EditText bccTB = findViewById(R.id.bcc);
-                        EditText contentTB = findViewById(R.id.editMessage);
-                        String subject = subjectTB.getText().toString();
-                        String content = contentTB.getText().toString();
-                        String cc = ccTB.getText().toString();
-                        String bcc = bccTB.getText().toString();
-                        String to = toTB.getText().toString();
-
-                        if (TextUtils.isEmpty(subject)) {
-                            subjectTB.setError("Subject required");
-                            subjectTB.requestFocus();
-                        } else if (TextUtils.isEmpty(content)) {
-                            contentTB.setError("Content required");
-                            contentTB.requestFocus();
-                        } else if (TextUtils.isEmpty(to)) {
-                            toTB.setError("To required");
-                            toTB.requestFocus();
-                        } else if (TextUtils.isEmpty(cc)) {
-                            ccTB.setError("Cc required");
-                            ccTB.requestFocus();
-                        } else if (TextUtils.isEmpty(bcc)) {
-                            bccTB.setError("Bcc required");
-                            bccTB.requestFocus();
-                        } else {
-                            MessageService service = ServiceUtils.retrofit.create(MessageService.class);
-                            String params = "";
-                            String contactId = "";
-
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("userInfo", 0);
-                            String currentUser = pref.getString("loggedInUser", "");
-                            int userId = pref.getInt("userId", 0);
-
-                            for (Account con : allContacts) {
-
-                                if (currentUser.equals(con.getUsername())) {
-                                    contactId = String.valueOf(con.getId());
-                                }
-                            }
-
-                            params = contactId + "," + to + "," + cc + "," + bcc + "," + "dateTime" + "," + subject + "," +
-                                    content + "," + String.valueOf(userId) + "," + "name1.name2";
-
-                            Call<Message> callM = service.createMessage(params);
-
-                            callM.enqueue(new Callback<Message>() {
-                                @Override
-                                public void onResponse(Call<Message> call, Response<Message> response) {
-                                    Toast.makeText(CreateEmailActivity.this, "Successful", Toast.LENGTH_SHORT).show();
-                                    Intent i = new Intent(CreateEmailActivity.this, EmailsActivity.class);
-                                    startActivity(i);
-                                }
-
-                                @Override
-                                public void onFailure(Call<Message> call, Throwable t) {
-                                    Toast.makeText(CreateEmailActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Account>> call, Throwable t) {
-                        Toast.makeText(CreateEmailActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_cancel:
-                deleteMessage();
-                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, EmailsActivity.class);
-                startActivity(intent);
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    public void deleteMessage() {
-        Call<Message> call = messageService.deleteMessage(message.getId());
-
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-
-            }
+        btnCancel.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-                // Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                Intent i = new Intent(CreateEmailActivity.this, EmailsActivity.class);
+                startActivity(i);
 
             }
         });
+
     }
-    */
     @Override
     protected void onStart() {
         super.onStart();

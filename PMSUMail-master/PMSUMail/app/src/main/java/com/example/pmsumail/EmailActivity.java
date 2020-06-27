@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,13 +19,16 @@ import com.example.pmsumail.model.Account;
 import com.example.pmsumail.model.Attachment;
 import com.example.pmsumail.model.Message;
 import com.example.pmsumail.model.Tag;
+import com.example.pmsumail.model.requestbody.MessageCreateRequestBody;
 import com.example.pmsumail.service.AccountService;
 import com.example.pmsumail.service.MessageService;
 import com.example.pmsumail.service.ServiceUtils;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +45,9 @@ public class EmailActivity extends AppCompatActivity {
     private List<Attachment> attachments = new ArrayList<>();
     String accountPrefe;
 
+
+    private ImageView btnSend;
+    private ImageView btnCancel;
 
     private Toolbar toolbar;
     private TextView toolbarText;
@@ -106,6 +113,8 @@ public class EmailActivity extends AppCompatActivity {
                 return true;
             case R.id.action_forward:
                 forward();
+                Toast.makeText(getBaseContext(), "Forward message", Toast.LENGTH_SHORT).show();
+
                 return true;
             case R.id.action_delete:
                 deleteMessage();
@@ -161,7 +170,83 @@ public class EmailActivity extends AppCompatActivity {
 
                 toolbarText.setText("Replay message");
 
+                btnSend = findViewById(R.id.button_one);
+                btnCancel = findViewById(R.id.button_two);
 
+                btnSend.setImageDrawable(getResources().getDrawable(R.drawable.ic_send));
+                btnCancel.setImageDrawable(getResources().getDrawable(R.drawable.ic_cancel));
+
+                btnSend.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        MessageCreateRequestBody messageCreateRequestBody = new MessageCreateRequestBody();
+
+                        EditText to_view = findViewById(R.id.send_to);
+                        EditText subject_view = findViewById(R.id.subject);
+                        EditText cc_view = findViewById(R.id.cc_edit);
+                        EditText bc_view = findViewById(R.id.bcc);
+                        EditText content_view = findViewById(R.id.content_edit);
+
+                        to_view.setText(message.getFrom());
+                        subject_view.setText( message.getSubject());
+                        cc_view.setText( message.getCc());
+                        bc_view.setText( message.getBcc());
+                        content_view.setText( message.getContent());
+
+                        if(bc_view.getText().toString() == null || bc_view.getText().toString().length() == 0  ||  cc_view.getText().toString() == null || cc_view.getText().toString().length() == 0
+                                || to_view.getText().toString() == null || to_view.getText().toString().length() == 0) {
+
+                            Toast.makeText(EmailActivity.this, "Fields can not be empty", Toast.LENGTH_LONG).show();
+                            return;
+                        }//else
+
+                        //if(!isValidEmailId(to_view.getText().toString().trim())){
+                          //  Toast.makeText(EmailActivity.this, "'To' must be valid (example@example.example)", Toast.LENGTH_LONG).show();
+                           // return;
+
+                        //}
+                        else{
+                            messageCreateRequestBody.setBcc(bc_view.getText().toString());
+                            messageCreateRequestBody.setCc(cc_view.getText().toString());
+                            messageCreateRequestBody.setContent(content_view.getText().toString());
+                            messageCreateRequestBody.setSubject(subject_view.getText().toString());
+                            messageCreateRequestBody.setTo(to_view.getText().toString());
+
+                            messageCreateRequestBody.setFrom(sharedPreferences.getString(LoginActivity.Username, "User"));
+                            messageCreateRequestBody.setDateTime(new Date());
+                            messageCreateRequestBody.setMessageTag(21.2);
+                            messageCreateRequestBody.setMessageRead(false);
+                        }
+
+
+                        Call<Message> call = messageService.createMessage(messageCreateRequestBody);
+                        call.enqueue(new Callback<Message>() {
+                            @Override
+                            public void onResponse(Call<Message> call, Response<Message> response) {
+                                Toast.makeText(EmailActivity.this, "Successful", Toast.LENGTH_SHORT).show();
+                                Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onFailure(Call<Message> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+                btnCancel.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                        startActivity(i);
+
+                    }
+                });
             }
 
             @Override
@@ -169,6 +254,15 @@ public class EmailActivity extends AppCompatActivity {
                 // Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private boolean isValidEmailId(String email){
+
+        return Pattern.compile("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
+                + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
+                + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+                + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$").matcher(email).matches();
     }
     public void replayToAll() {
         Call<Message> call = messageService.getMessage(message.getId());
@@ -194,7 +288,89 @@ public class EmailActivity extends AppCompatActivity {
                 toolbar = findViewById(R.id.toolbar);
                 toolbarText = findViewById(R.id.toolbar_text);
 
+                btnSend = findViewById(R.id.button_one);
+                btnCancel = findViewById(R.id.button_two);
+
+                btnSend.setImageDrawable(getResources().getDrawable(R.drawable.ic_send));
+                btnCancel.setImageDrawable(getResources().getDrawable(R.drawable.ic_cancel));
+
                 toolbarText.setText("Replay to all");
+
+                btnSend.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        EditText to_view = findViewById(R.id.send_to);
+                        EditText subject_view = findViewById(R.id.subject);
+                        EditText cc_view = findViewById(R.id.cc_edit);
+                        EditText bc_view = findViewById(R.id.bcc);
+                        EditText content_view = findViewById(R.id.content_edit);
+
+                        to_view.setText( message.getTo());
+                        subject_view.setText(message.getSubject());
+                        cc_view.setText(message.getCc());
+                        bc_view.setText( message.getBcc());
+                        content_view.setText(message.getContent());
+                        MessageCreateRequestBody messageCreateRequestBody = new MessageCreateRequestBody();
+
+
+
+
+
+                        if(bc_view.getText().toString() == null || bc_view.getText().toString().length() == 0  ||  cc_view.getText().toString() == null || cc_view.getText().toString().length() == 0
+                                || to_view.getText().toString() == null || to_view.getText().toString().length() == 0) {
+
+                            Toast.makeText(EmailActivity.this, "Fields can not be empty", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        //else
+
+                        //if(!isValidEmailId(to_view.getText().toString().trim())){
+                          //  Toast.makeText(EmailActivity.this, "'To' must be valid (example@example.example)", Toast.LENGTH_LONG).show();
+                           // return;
+
+                        //}
+                        else{
+                            messageCreateRequestBody.setBcc(bc_view.getText().toString());
+                            messageCreateRequestBody.setCc(cc_view.getText().toString());
+                            messageCreateRequestBody.setContent(content_view.getText().toString());
+                            messageCreateRequestBody.setSubject(subject_view.getText().toString());
+                            messageCreateRequestBody.setTo(to_view.getText().toString());
+
+                            messageCreateRequestBody.setFrom(sharedPreferences.getString(LoginActivity.Username, "User"));
+                            messageCreateRequestBody.setDateTime(new Date());
+                            messageCreateRequestBody.setMessageTag(21.2);
+                            messageCreateRequestBody.setMessageRead(false);
+                        }
+
+
+                        Call<Message> call = messageService.createMessage(messageCreateRequestBody);
+                        call.enqueue(new Callback<Message>() {
+                            @Override
+                            public void onResponse(Call<Message> call, Response<Message> response) {
+                                Toast.makeText(EmailActivity.this, "Successful", Toast.LENGTH_SHORT).show();
+                                Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onFailure(Call<Message> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+                btnCancel.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                        startActivity(i);
+
+                    }
+                });
             }
 
             @Override
@@ -202,6 +378,9 @@ public class EmailActivity extends AppCompatActivity {
                 // Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
     }
 
     public void forward() {
@@ -219,7 +398,7 @@ public class EmailActivity extends AppCompatActivity {
                 EditText bc_view = findViewById(R.id.bcc);
                 EditText content_view = findViewById(R.id.content_edit);
 
-                to_view.setText("to");
+                to_view.setText("Enter reciever");
                 subject_view.setText(message.getSubject());
                 cc_view.setText(message.getCc());
                 bc_view.setText(message.getBcc());
@@ -228,7 +407,90 @@ public class EmailActivity extends AppCompatActivity {
                 toolbar = findViewById(R.id.toolbar);
                 toolbarText = findViewById(R.id.toolbar_text);
 
+                btnSend = findViewById(R.id.button_one);
+                btnCancel = findViewById(R.id.button_two);
+
+                btnSend.setImageDrawable(getResources().getDrawable(R.drawable.ic_send));
+                btnCancel.setImageDrawable(getResources().getDrawable(R.drawable.ic_cancel));
+
+
                 toolbarText.setText("Forward message");
+
+                btnSend.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        EditText to_view = findViewById(R.id.send_to);
+                        EditText subject_view = findViewById(R.id.subject);
+                        EditText cc_view = findViewById(R.id.cc_edit);
+                        EditText bc_view = findViewById(R.id.bcc);
+                        EditText content_view = findViewById(R.id.content_edit);
+
+                        to_view.setText( message.getTo());
+                        subject_view.setText(message.getSubject());
+                        cc_view.setText(message.getCc());
+                        bc_view.setText( message.getBcc());
+                        content_view.setText(message.getContent());
+                        MessageCreateRequestBody messageCreateRequestBody = new MessageCreateRequestBody();
+
+
+
+
+
+                        if(bc_view.getText().toString() == null || bc_view.getText().toString().length() == 0  ||  cc_view.getText().toString() == null || cc_view.getText().toString().length() == 0
+                                || to_view.getText().toString() == null || to_view.getText().toString().length() == 0) {
+
+                            Toast.makeText(EmailActivity.this, "Fields can not be empty", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        //else
+
+                        //if(!isValidEmailId(to_view.getText().toString().trim())){
+                          //  Toast.makeText(EmailActivity.this, "'To' must be valid (example@example.example)", Toast.LENGTH_LONG).show();
+                           // return;
+
+                       // }
+                        else{
+                            messageCreateRequestBody.setBcc(bc_view.getText().toString());
+                            messageCreateRequestBody.setCc(cc_view.getText().toString());
+                            messageCreateRequestBody.setContent(content_view.getText().toString());
+                            messageCreateRequestBody.setSubject(subject_view.getText().toString());
+                            messageCreateRequestBody.setTo(to_view.getText().toString());
+
+                            messageCreateRequestBody.setFrom(sharedPreferences.getString(LoginActivity.Username, "User"));
+                            messageCreateRequestBody.setDateTime(new Date());
+                            messageCreateRequestBody.setMessageTag(21.2);
+                            messageCreateRequestBody.setMessageRead(false);
+                        }
+
+
+                        Call<Message> call = messageService.createMessage(messageCreateRequestBody);
+                        call.enqueue(new Callback<Message>() {
+                            @Override
+                            public void onResponse(Call<Message> call, Response<Message> response) {
+                                Toast.makeText(EmailActivity.this, "Successful", Toast.LENGTH_SHORT).show();
+                                Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onFailure(Call<Message> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+                btnCancel.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(EmailActivity.this, EmailsActivity.class);
+                        startActivity(i);
+
+                    }
+                });
             }
 
             @Override
